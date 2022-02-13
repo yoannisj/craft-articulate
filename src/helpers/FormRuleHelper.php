@@ -19,6 +19,32 @@ use yoannisj\articulate\models\FormCondition;
 class FormRuleHelper
 {
     /**
+     * @param string $path
+     * 
+     * @return array
+     */
+
+    public static function parseFieldPath( string $path ): array
+    {
+        $craftView = Craft::$app->getView();
+        $namespace = $craftView->getNamespace();
+
+        // @example 'neoFieldHandle.blockType:fieldHandle'
+        // @example 'neoFieldHandle.blockType:owner.type'
+
+        $parts = explode('.', $path);
+
+        // @todo: support nested field names
+        $handle = $path;
+        $name = $craftView->namespaceInputName($path);
+
+        return [
+            'handle' => $handle,
+            'name' => $name,
+        ];
+    }
+
+    /**
      * @return FormCondition
      */
 

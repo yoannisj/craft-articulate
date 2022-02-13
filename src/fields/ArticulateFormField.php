@@ -95,12 +95,17 @@ class ArticulateFormField extends Field
         }
 
         // Craft::dd($ruleConditions);
-        Craft::dd($config->getFieldsMap());
+        // Craft::dd($config->getFieldsMap());
 
         $craftView = Craft::$app->getView();
-
         $craftView->registerAssetBundle(FormAssetBundle::class, View::POS_END);
 
-        return '<p>Hello Articulate Form Field input '.$this->handle.'!</p>';
+        $html = '';
+
+        if (!empty($config->description)) {
+            $html .= '<p>'.$config->description.'</p>';
+        }
+
+        return $html;
     }
 }

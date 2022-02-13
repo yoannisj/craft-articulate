@@ -25,6 +25,12 @@ class FormConfig extends Model
     // =========================================================================
 
     /**
+     * @var string
+     */
+
+    public $description;
+
+    /**
      * @var FormRule[]
      */
 
@@ -110,7 +116,7 @@ class FormConfig extends Model
 
     public function getFieldsMap(): array
     {
-        $fields = [];
+        $map = [];
 
         // collect list of field handles based on form rules
         foreach ($this->rules as $rule)
@@ -118,9 +124,9 @@ class FormConfig extends Model
             // make sure rule's own field is included
             $field = $rule->getField();
 
-            if (!array_key_exists($field->handle, $fields))
+            if (!array_key_exists($field->handle, $map))
             {
-                $fields[$field->handle] = [
+                $map[$field->handle] = [
                     'handle' => $field->handle,
                     'name' => $field->handle,
                     'type' => get_class($field),
@@ -132,9 +138,9 @@ class FormConfig extends Model
 
             foreach ($ruleConditionFields as $fieldHandle => $field)
             {
-                if (!array_key_exists($fieldHandle, $fields))
+                if (!array_key_exists($fieldHandle, $map))
                 {
-                    $fields[$field->handle] = [
+                    $map[$field->handle] = [
                         'handle' => $field->handle,
                         'name' => $field->handle,
                         'type' => get_class($field),
@@ -143,7 +149,18 @@ class FormConfig extends Model
             }
         }
 
-        return $fields;
+        return $map;
+    }
+
+    /**
+     * 
+     */
+
+    public function getFieldsConfig()
+    {
+        $map = $this->getFieldsMap();
+        $config = [];
+
     }
 
     // =Protected Methods

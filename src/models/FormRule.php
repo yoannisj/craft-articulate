@@ -5,6 +5,8 @@
 
 namespace yoannisj\articulate\models;
 
+use yii\base\InvalidConfigException;
+
 use Craft;
 use craft\base\Model;
 use craft\base\FieldInterface;

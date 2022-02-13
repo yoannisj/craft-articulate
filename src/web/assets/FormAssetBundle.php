@@ -3,6 +3,8 @@
  * @package yoannisj/craft-articulate
  */
 
+namespace yoannisj\articulate\web\assets;
+
 use Craft;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset as CraftCpAsset;
@@ -41,6 +43,7 @@ class FormAssetBundle extends AssetBundle
         ];
 
         $this->js = [
+            'js/vendor/dynamicforms.js',
             'js/helpers/assertions.js',
             'js/form/adapters/base-field-adapter.js',
             'js/form/adapters/relation-field-adapter.js',
