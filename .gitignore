@@ -1,0 +1,8 @@
+vendor
+
+
+# Miscelanneous
+.DS_STORE
+desktop.ini
+gulp-styles.bat
+.idea/

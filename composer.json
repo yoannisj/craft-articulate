@@ -1,0 +1,32 @@
+{
+    "name": "yoannisj/craft-articulate",
+    "description": "Make Craft's element forms more dynamic and build articulate control panels",
+    "type": "craft-plugin",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Yoannis Jamar",
+            "homepage": "https://yoannis.com"
+        }
+    ],
+    "support": {
+        "email": "office@yoannis.com",
+        "issues": "https://github.com/yoannisj/craft-articulate/issues?state=open",
+        "source": "https://github.com/yoannisj/craft-articulate",
+        "docs": "https://github.com/yoannisj/craft-articulate/blob/master/README.md"
+    },
+    "autoload": {
+        "psr-4": {
+            "yoannisj\\articulate\\": "src/"
+        }
+    },
+    "extra": {
+        "handle": "articulate",
+        "name": "Articulate",
+        "class": "yoannisj\\articulate\\Articulate"
+    },
+    "require": {
+        "craftcms/cms": "^3.7.14"
+    },
+    "require-dev": {}
+}
