@@ -11,6 +11,9 @@ use Craft;
 use craft\base\Model;
 use craft\base\FieldInterface;
 
+use yoannisj\articulate\Articulate;
+use yoannisj\articulate\helpers\FormRuleHelper;
+
 /**
  * Represents an condition to verify when evaluating form rules
  */
@@ -54,10 +57,22 @@ class FormCondition extends Model
     public $subConditions;
 
     /**
+     * @var array
+     */
+
+    private $_subjectMap;
+
+    /**
      * @var string
      */
 
-    public $subject;
+    private $_subjectPath;
+
+    /**
+     * @var FieldInterface
+     */
+
+    private $_subject;
 
     /**
      * @var string
@@ -88,20 +103,18 @@ class FormCondition extends Model
         {
             $this->test = null;
             $this->given = null;
-            $this->value = null;
         }
 
         else if (!$this->operator)
         {
             if (!isset($this->subject))
             {
-                Craft::dd($this->toArray());
-
                 throw new InvalidConfigException(
                     "Missing required FormCondition property `subject`");
             }
 
-            if (!isset($this->test)) {
+            if (!isset($this->test))
+            {
                 throw new InvalidConfigException(
                     "Missing required FormCondition property `test`");
             }
@@ -124,41 +137,170 @@ class FormCondition extends Model
     }
 
     /**
-     * @return FieldInterface[]
+     * @return array
      */
 
     public function getFieldsMap(): array
     {
-        // @todo: support field paths for nested block fields
+        if ($this->isNull) return [];
 
-        $fields = [];
+        $fieldsMap = [];
 
         if ($this->operator)
         {
             foreach ($this->subConditions as $subCondition)
             {
-                $subFields = $subCondition->getFieldsMap();
+                $conditionMap = $subCondition->getFieldsMap();
 
-                foreach ($subFields as $fieldHandle => $field)
+                foreach ($conditionMap as $fieldPath => $fieldMap)
                 {
-                    if (!array_key_exists($fieldHandle, $fields)) {
-                        $fields[$fieldHandle] = $field;
+                    if (!array_key_exists($fieldPath, $fieldsMap)) {
+                        $fieldsMap[$fieldPath] = $fieldMap;
                     }
                 }
             }
 
-            return $fields;
+            return $fieldsMap;
         }
 
-        $fieldHandle = $this->subject;
-        $field = Craft::$app->getFields()->getFieldByHandle($fieldHandle);
+        $fieldMap = $this->getSubjectMap();
+        $fieldPath = $fieldMap['path'];
 
-        $fields[$fieldHandle] = $field;
+        $fieldsMap[$fieldPath] = $fieldMap;
 
-        return $fields;
+        return $fieldsMap;
+    }
+
+    /**
+     * 
+     */
+
+    public function setSubject( $subject )
+    {
+        if (is_string($subject))
+        {
+            $subjectMap = FormRuleHelper::parseFieldPath($subject);
+
+            $this->_subjectMap = $subjectMap;
+            $this->_subjectPath = $subjectMap['path'];
+            $this->_subject = null;
+        }
+
+        else if ($subject instanceof FieldInterface)
+        {
+            $subjectMap = [
+                'path' => $subject->handle,
+                'handle' => $subject->handle,
+                'type' => get_class($subject),
+                'parentHandle' => null,
+                'blockType' => null,
+            ];
+
+            $this->_subjectMap = $subjectMap;
+            $this->_subjectPath = $subjectMap['path'];
+            $this->_subject = $subject;
+        }
+
+        else {
+            throw new InvalidConfigException(
+                "Form Rule's `subject` attribute must be a string or FieldInterface instance");
+        }
+    }
+
+    /**
+     * @return array|null
+     */
+
+    public function getSubjectMap()
+    {
+        if ($this->isNull) return null;
+
+        if (!isset($this->_subjectMap))
+        {
+            throw new InvalidConfigException(
+                "Missing required Form Rule's `subject` attribute");
+        }
+
+        return $this->_subjectMap;
+    }
+
+    /**
+     * 
+     */
+
+    public function getSubjectPath(): string
+    {
+        if (!isset($this->_subjectPath))
+        {
+            $subjectMap = $this->getSubjectMap();
+            $this->_subjectPath = $subjectMap['path'];
+        }
+
+        return $this->_subjectPath;
+    }
+
+    /**
+     * @return FieldInterface|null
+     */
+
+    public function getSubject()
+    {
+        if ($this->isNull) return null;
+
+        if (!isset($this->_subject))
+        {
+            $subjectMap = $this->getSubjectMap();
+            $subjectHandle = $subjectMap['handle'];
+
+            $subject = Craft::$app->getFields()
+                ->getFieldByHandle($subjectHandle);
+
+            if (!$subject)
+            {
+                throw new InvalidConfigException(
+                    "Could not find Form Rule field with handle '$subjectHandle'");
+            }
+
+            $this->_subject = $subject;
+        }
+
+        return $this->_subject;
     }
 
     // =Validation
     // -------------------------------------------------------------------------
+
+    // =Exporting
+    // -------------------------------------------------------------------------
+
+    /**
+     * @inheritdoc
+     */
+
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields[] = 'subjectMap';
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+
+    public function extraFields()
+    {
+        $fields = parent::extraFields();
+
+        $fields[] = 'subjectPath';
+        $fields[] = 'subject';
+
+        return $fields;
+    }
+
+    // =Protected Methods
+    // =========================================================================
 
 }

@@ -95,7 +95,7 @@ class ArticulateFormField extends Field
         }
 
         // Craft::dd($ruleConditions);
-        // Craft::dd($config->getFieldsMap());
+        Craft::dd($config->getFieldsMap());
 
         $craftView = Craft::$app->getView();
         $craftView->registerAssetBundle(FormAssetBundle::class, View::POS_END);

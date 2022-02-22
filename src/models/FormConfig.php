@@ -116,40 +116,31 @@ class FormConfig extends Model
 
     public function getFieldsMap(): array
     {
-        $map = [];
+        $fieldsMap = [];
 
         // collect list of field handles based on form rules
         foreach ($this->rules as $rule)
         {
             // make sure rule's own field is included
-            $field = $rule->getField();
+            $ruleMap = $rule->getFieldMap();
+            $path = $ruleMap['path'];
 
-            if (!array_key_exists($field->handle, $map))
-            {
-                $map[$field->handle] = [
-                    'handle' => $field->handle,
-                    'name' => $field->handle,
-                    'type' => get_class($field),
-                ];
+            if (!array_key_exists($path, $fieldsMap)) {
+                $fieldsMap[$path] = $ruleMap;
             }
 
             // make sure fields from rule's conditions are included
-            $ruleConditionFields = $rule->getWhen()->getFieldsMap();
+            $ruleConditionMap = $rule->getWhen()->getFieldsMap();
 
-            foreach ($ruleConditionFields as $fieldHandle => $field)
+            foreach ($ruleConditionMap as $fieldPath => $fieldMap)
             {
-                if (!array_key_exists($fieldHandle, $map))
-                {
-                    $map[$field->handle] = [
-                        'handle' => $field->handle,
-                        'name' => $field->handle,
-                        'type' => get_class($field),
-                    ];
+                if (!array_key_exists($fieldPath, $fieldsMap)) {
+                    $fieldsMap[$fieldPath] = $fieldMap;
                 }
             }
         }
 
-        return $map;
+        return $fieldsMap;
     }
 
     /**

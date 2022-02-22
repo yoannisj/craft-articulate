@@ -24,16 +24,34 @@ interface FormRuleInterface
     public function getEffect(): string;
 
     /**
+     * @return array
+     */
+
+    public function getFieldMap(): array;
+
+    /**
+     * @return string
+     */
+
+    public function getFieldPath(): string;
+
+    /**
      * @return FieldInterface
      */
 
     public function getField(): FieldInterface;
 
     /**
-     * @return string|null
+     * @return string|array|null
      */
 
     public function getValue();
+
+    /**
+     * @return mixed
+     */
+
+    public function getFallback();
 
     /**
      * @return FormCondition;

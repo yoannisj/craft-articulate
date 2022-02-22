@@ -26,21 +26,35 @@ class FormRuleHelper
 
     public static function parseFieldPath( string $path ): array
     {
-        $craftView = Craft::$app->getView();
-        $namespace = $craftView->getNamespace();
+        $fieldPath = $path;
+        $handle = $fieldPath;
+        $parentHandle = null;
+        $blockType = null;
 
-        // @example 'neoFieldHandle.blockType:fieldHandle'
-        // @example 'neoFieldHandle.blockType:owner.type'
+        /* @todo: use regex matching to deconstruct field path */
+        if (strpos($handle, '.'))
+        {
+            $parts = explode('.', $handle);
+            $handle = $parts[1];
+            $parentHandle = $parts[0];
+        }
 
-        $parts = explode('.', $path);
-
-        // @todo: support nested field names
-        $handle = $path;
-        $name = $craftView->namespaceInputName($path);
+        if (strpos($handle, ':'))
+        {
+            $parts = explode(':', $handle);
+            $handle = $parts[1];
+            $blockType = $parts[0];
+        }
+    
+        $field = Craft::$app->getFields()
+            ->getFieldByHandle($handle);
 
         return [
+            'path' => $fieldPath,
             'handle' => $handle,
-            'name' => $name,
+            'type' => $field ? get_class($field) : null,
+            'parentHandle' => $parentHandle,
+            'blockType' => $blockType,
         ];
     }
 
